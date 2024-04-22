@@ -1,29 +1,49 @@
 "use client"
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function SignUp() {
+  const router = useRouter();
+
   const [user, setUser] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
-    role: ""
   });
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const onSignup = async (e) => {
-    e.preventDefault();
+  const onSignup = async () => {
     try {
-      // Make a request to your server to handle sign-up
-      const response = await axios.post("/api/signup", user);
-      console.log("User signed up successfully:", response.data);
-      // Optionally, redirect the user to the login page or another page
-    } catch (error) {
-      console.error("Error signing up:", error);
-      // Handle errors (e.g., display error messages to the user)
+      setLoading(true);
+      const response = await axios.post("/api/users/signup", user);
+      console.log("Signup success", response.data);
+      toast.success("Sign up successful!");
+      router.push("/login"); // Ensure this route exists
+    } catch (error: any) {
+      console.error("Signup failed", error.message);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (
+      user.email.length > 0 &&
+      user.password.length > 0 &&
+      user.username.length > 0 &&
+      !loading
+    ) {
+      setButtonDisabled(false);
+    } else {
+      setButtonDisabled(true);
+    }
+  }, [user, loading]);
 
   return (
     <div className="flex flex-col items-center md:flex-row md:h-screen">
@@ -47,8 +67,10 @@ export default function SignUp() {
                 id="name"
                 type="text"
                 placeholder="Enter your name"
-                value={user.name}
-                onChange={(e) => setUser({ ...user, name: e.target.value })}
+                value={user.username}
+                onChange={(e) =>
+                  setUser({ ...user, username: e.target.value })
+                }
                 className="w-full px-4 py-3 mt-1 border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-200"
                 required
               />
@@ -86,29 +108,18 @@ export default function SignUp() {
                 required
               />
             </div>
-            <div>
-              <label htmlFor="role" className="block font-bold text-gray-700">
-                Role
-              </label>
-              <select
-                id="role"
-                value={user.role}
-                onChange={(e) => setUser({ ...user, role: e.target.value })}
-                className="w-full px-4 py-3 mt-1 border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                required
-              >
-                <option value="">Select your role</option>
-                <option value="teacher">Teacher</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
             {/* Additional sign-up fields can be added here */}
             <div>
               <button
                 type="submit"
-                className="w-full px-4 py-3 font-bold text-white bg-indigo-500 rounded-md hover:bg-indigo-600 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700"
+                className={`w-full px-4 py-3 font-bold text-white rounded-md ${
+                  buttonDisabled
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-indigo-500 hover:bg-indigo-600"
+                } focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700`}
+                disabled={buttonDisabled || loading}
               >
-                Sign Up
+                {loading ? "Processing..." : "Sign Up"}
               </button>
             </div>
           </form>
