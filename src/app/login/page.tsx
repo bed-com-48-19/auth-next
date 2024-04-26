@@ -1,27 +1,46 @@
-"use client"
+"use client";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function Login() {
+  const router = useRouter();
   const [credentials, setCredentials] = useState({
     email: "",
-    password: ""
+    password: "",
   });
+  const [buttonDisabled, setButtonDisabled] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const onLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
+      setLoading(true);
       // Make a request to your server to handle login
-      const response = await axios.post("/api/login", credentials);
+      const response = await axios.post("/api/users/login", credentials);
       console.log("User logged in successfully:", response.data);
+      toast.success("Login success");
       // Optionally, redirect the user to the dashboard or another page
-    } catch (error) {
+      router.push("/profile");
+    } catch (error: any) {
       console.error("Error logging in:", error);
       // Handle errors (e.g., display error messages to the user)
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if(credentials.email.length > 0 && credentials.password.length > 0) {
+        setButtonDisabled(false);
+    } else{
+        setButtonDisabled(true);
+    }
+}, [credentials, loading]);
 
   return (
     <div className="flex flex-col items-center md:flex-row md:h-screen">
@@ -73,11 +92,16 @@ export default function Login() {
               />
             </div>
             <div>
-              <button
+            <button
                 type="submit"
-                className="w-full px-4 py-3 font-bold text-white bg-indigo-500 rounded-md hover:bg-indigo-600 focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700"
+                className={`w-full px-4 py-3 font-bold text-white rounded-md ${
+                  buttonDisabled
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-indigo-500 hover:bg-indigo-600"
+                } focus:outline-none focus:shadow-outline-indigo focus:border-indigo-700`}
+                disabled={buttonDisabled || loading}
               >
-                Sign In
+                {loading ? "Processing..." : "Sign In"}
               </button>
             </div>
           </form>
