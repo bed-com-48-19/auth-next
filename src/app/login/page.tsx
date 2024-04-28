@@ -16,31 +16,46 @@ export default function Login() {
   const [loading, setLoading] = React.useState(false);
 
   const onLogin = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    setLoading(true);
+
     try {
-      setLoading(true);
-      // Make a request to your server to handle login
       const response = await axios.post("/api/users/login", credentials);
       console.log("User logged in successfully:", response.data);
-      toast.success("Login success");
-      // Optionally, redirect the user to the dashboard or another page
-      router.push("/profile");
+
+      if (response.data.error) {
+        toast.error(response.data.error);
+      } else {
+        toast.success("Login successful!");
+
+        // Access isAdmin flag from response data
+        const { isAdmin } = response.data;
+
+        // Store token in localStorage
+        localStorage.setItem("token", response.data.token);
+
+        // Redirect based on isAdmin
+        if (isAdmin) {
+          router.push("/admin");
+        } else {
+          router.push("/profile");
+        }
+      }
     } catch (error: any) {
       console.error("Error logging in:", error);
-      // Handle errors (e.g., display error messages to the user)
-      toast.error(error.message);
+      toast.error("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if(credentials.email.length > 0 && credentials.password.length > 0) {
-        setButtonDisabled(false);
-    } else{
-        setButtonDisabled(true);
+    if (credentials.email.length > 0 && credentials.password.length > 0) {
+      setButtonDisabled(false);
+    } else {
+      setButtonDisabled(true);
     }
-}, [credentials, loading]);
+  }, [credentials, loading]);
 
   return (
     <div className="flex flex-col items-center md:flex-row md:h-screen">
@@ -92,7 +107,7 @@ export default function Login() {
               />
             </div>
             <div>
-            <button
+              <button
                 type="submit"
                 className={`w-full px-4 py-3 font-bold text-white rounded-md ${
                   buttonDisabled
