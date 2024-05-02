@@ -30,7 +30,7 @@ export default function StudentProfile({ params }: any) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <h1>This is admin</h1>
+      <h1>This is a student</h1>
       <hr />
       <p className="text-4xl">
         Profile page
