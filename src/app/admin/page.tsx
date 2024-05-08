@@ -4,7 +4,7 @@ import axios from "axios";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 
-export default function StudentProfile({ params }: any) {
+export default function AdminProfile({ params }: any) {
   const [data, setData] = useState("nothing");
 
   const logout = async () => {
@@ -30,7 +30,7 @@ export default function StudentProfile({ params }: any) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <h1>This is admin</h1>
+      <h1>This is a Admin</h1>
       <hr />
       <p className="text-4xl">
         Profile page
