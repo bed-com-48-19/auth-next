@@ -20,7 +20,7 @@ export default function Login() {
     try {
       setLoading(true);
       // Make a request to your server to handle login
-      const response = await axios.post("http://localhost:8000/api/v1/auth/login", credentials);
+      const response = await axios.post("api/users/login", credentials);
       console.log("User logged in successfully:", response.data);
 
       // Redirect based on user role
@@ -29,7 +29,7 @@ export default function Login() {
           router.push("/admin");
           break;
         case "teacher":
-          router.push("/teacher");
+          router.push("/student");
           break;
         case "user":
           router.push("/profile");

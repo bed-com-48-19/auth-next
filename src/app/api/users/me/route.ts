@@ -9,7 +9,11 @@ connect();
 export async function GET(request: NextRequest) {
   try {
     const userId = await getDataFromToken(request);
-    const user = await User.findOne({ _id: userId }).select("-password");
+    const user = await User.findOne({ _id: userId }).select("-password"); // Excludes password
+
+    // Select specific fields if needed
+    // const user = await User.findOne({ _id: userId }).select("name email"); // Example
+
     return NextResponse.json({
       mesaaage: "User found",
       data: user,
